@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HardwareLab 3D — Simulador Arduino Uno &amp; Protoboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app-shell" class="app-shell">
+    <!-- Barra Superior -->
+    <header class="topbar" role="banner">
+      <div class="topbar-group topbar-brand">
+        <button id="btn-toggle-sidebar" class="btn-icon" type="button" title="Mostrar u ocultar catálogo de componentes" aria-label="Mostrar u ocultar catálogo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <line x1="9" y1="4" x2="9" y2="20"></line>
+          </svg>
+        </button>
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="5" width="14" height="14" rx="2.5"></rect>
+              <rect x="9" y="9" width="6" height="6" rx="1"></rect>
+              <line x1="9" y1="2" x2="9" y2="5"></line>
+              <line x1="15" y1="2" x2="15" y2="5"></line>
+              <line x1="9" y1="19" x2="9" y2="22"></line>
+              <line x1="15" y1="19" x2="15" y2="22"></line>
+              <line x1="2" y1="9" x2="5" y2="9"></line>
+              <line x1="2" y1="15" x2="5" y2="15"></line>
+              <line x1="19" y1="9" x2="22" y2="9"></line>
+              <line x1="19" y1="15" x2="22" y2="15"></line>
+            </svg>
+          </span>
+          <div class="brand-text">
+            <h1 class="brand-title">HardwareLab 3D</h1>
+            <span class="brand-subtitle">Arduino Uno R3 · Protoboard 830</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="topbar-divider" aria-hidden="true"></div>
+
+      <!-- Estado y Controles de Simulación -->
+      <div class="topbar-group topbar-sim">
+        <div id="sim-status-pill" class="status-pill is-running" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="sim-status-text" class="status-label">Ejecutando</span>
+          <span class="status-sep" aria-hidden="true">·</span>
+          <span id="sim-clock" class="status-clock">0 ms</span>
+        </div>
+
+        <div class="btn-row">
+          <button id="btn-play-pause" class="btn btn-secondary" type="button" title="Ejecutar o pausar la simulación">
+            <span id="play-pause-icon" aria-hidden="true">⏸</span>
+            <span id="play-pause-label">Pausar</span>
+          </button>
+          <button id="btn-reset" class="btn btn-secondary" type="button" title="Reiniciar reloj y estado de ejecución">
+            <span aria-hidden="true">↺</span>
+            <span>Reiniciar</span>
+          </button>
+          <button id="btn-mockup" class="btn btn-secondary" type="button" title="Restaurar la maqueta inicial del kit">
+            <span aria-hidden="true">📐</span>
+            <span>Maqueta Inicial</span>
+          </button>
+          <button id="btn-clear" class="btn btn-ghost-danger" type="button" title="Limpiar todos los componentes y cables">
+            <span aria-hidden="true">🧹</span>
+            <span>Limpiar</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="topbar-divider" aria-hidden="true"></div>
+
+      <!-- Selector de Color de Cable (6 colores) -->
+      <div class="topbar-group topbar-wires">
+        <span class="group-label">Cable</span>
+        <div id="wire-color-picker" class="wire-swatches" role="radiogroup" aria-label="Color de cable Dupont">
+          <button class="wire-swatch is-active" type="button" data-color="#D93025" data-name="Rojo" style="--swatch-color:#D93025" title="Cable Rojo" aria-label="Cable Rojo" aria-checked="true" role="radio"></button>
+          <button class="wire-swatch" type="button" data-color="#26292E" data-name="Negro" style="--swatch-color:#26292E" title="Cable Negro" aria-label="Cable Negro" aria-checked="false" role="radio"></button>
+          <button class="wire-swatch" type="button" data-color="#E09F00" data-name="Amarillo" style="--swatch-color:#E09F00" title="Cable Amarillo" aria-label="Cable Amarillo" aria-checked="false" role="radio"></button>
+          <button class="wire-swatch" type="button" data-color="#1E8E3E" data-name="Verde" style="--swatch-color:#1E8E3E" title="Cable Verde" aria-label="Cable Verde" aria-checked="false" role="radio"></button>
+          <button class="wire-swatch" type="button" data-color="#1A73E8" data-name="Azul" style="--swatch-color:#1A73E8" title="Cable Azul" aria-label="Cable Azul" aria-checked="false" role="radio"></button>
+          <button class="wire-swatch" type="button" data-color="#E8710A" data-name="Naranja" style="--swatch-color:#E8710A" title="Cable Naranja" aria-label="Cable Naranja" aria-checked="false" role="radio"></button>
+        </div>
+      </div>
+
+      <div class="topbar-divider" aria-hidden="true"></div>
+
+      <!-- Controles de Vista 3D -->
+      <div class="topbar-group topbar-views">
+        <span class="group-label">Vista 3D</span>
+        <div class="segmented-control" role="group" aria-label="Vistas de cámara 3D">
+          <button id="btn-view-iso" class="seg-btn is-active" type="button" data-view="iso" title="Vista Isométrica 3D">Isométrica</button>
+          <button id="btn-view-top" class="seg-btn" type="button" data-view="top" title="Vista Superior cenital">Superior</button>
+          <button id="btn-view-center" class="seg-btn" type="button" data-view="center" title="Centrar cámara">Centrar</button>
+        </div>
+      </div>
+
+      <!-- Botón destacado IDE Arduino -->
+      <div class="topbar-group topbar-cta">
+        <button id="btn-open-ide" class="btn btn-primary" type="button" title="Abrir editor de código Arduino y Monitor Serie">
+          <span aria-hidden="true">💻</span>
+          <span>IDE Arduino (Programar)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Cuerpo Principal -->
+    <main class="workspace">
+      <!-- Barra Lateral Izquierda: Catálogo -->
+      <aside id="catalog-sidebar" class="sidebar" aria-label="Catálogo de componentes">
+        <div class="sidebar-header">
+          <div class="sidebar-title-row">
+            <h2 class="sidebar-title">Catálogo Starter Kit</h2>
+            <span id="catalog-count" class="badge-neutral">12</span>
+          </div>
+          <div class="search-box">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input id="catalog-search" class="search-input" type="search" placeholder="Filtrar componente o modelo..." autocomplete="off">
+          </div>
+        </div>
+
+        <div id="catalog-list" class="catalog-list"></div>
+
+        <footer class="sidebar-footer">
+          <div class="legend-title">Controles rápidos</div>
+          <p class="legend-line"><strong>Click izq:</strong> seleccionar / mover / cablear</p>
+          <p class="legend-line"><strong>Click der:</strong> propiedades, datasheet y código</p>
+          <p class="legend-line"><strong>Rueda:</strong> zoom · <strong>Fondo:</strong> rotar / Shift+pan</p>
+        </footer>
+      </aside>
+
+      <!-- Escenario 3D -->
+      <section class="viewport-stage" aria-label="Mesa de trabajo 3D">
+        <canvas id="scene-canvas"></canvas>
+
+        <!-- Indicador flotante de estado / cableado -->
+        <div id="viewport-hud" class="viewport-hud">
+          <div id="wiring-banner" class="hud-chip is-wiring hidden" role="status">
+            <span id="wiring-swatch" class="hud-swatch"></span>
+            <span id="wiring-text">Cableando desde...</span>
+            <button id="btn-cancel-wire" class="hud-chip-btn" type="button">Cancelar (Esc)</button>
+          </div>
+          <div id="toast-banner" class="hud-chip is-toast hidden" role="status"></div>
+        </div>
+
+        <!-- Controles flotantes mínimos de zoom -->
+        <div class="zoom-controls" aria-label="Controles de zoom">
+          <button id="btn-zoom-in" class="zoom-btn" type="button" title="Acercar vista (+)" aria-label="Acercar">+</button>
+          <button id="btn-zoom-out" class="zoom-btn" type="button" title="Alejar vista (-)" aria-label="Alejar">−</button>
+        </div>
+
+        <!-- Tooltip flotante al hacer hover sobre cualquier pin -->
+        <div id="pin-tooltip" class="pin-tooltip hidden" role="tooltip">
+          <div class="pin-tooltip-header">
+            <span id="tt-comp-name" class="tt-comp">Arduino Uno</span>
+            <span id="tt-voltage" class="tt-volt">5.00 V</span>
+          </div>
+          <div class="pin-tooltip-body">
+            <span id="tt-pin-id" class="tt-pin-id">D13</span>
+            <span id="tt-pin-desc" class="tt-pin-desc">Digital I/O / LED L</span>
+          </div>
+          <div id="tt-hint" class="pin-tooltip-hint">Click para iniciar cable</div>
+        </div>
+
+        <!-- Menú Contextual Flotante de CLICK DERECHO -->
+        <div id="context-menu" class="context-menu hidden" role="dialog" aria-label="Inspector rápido de componente o cable">
+          <!-- Contenido renderizado dinámicamente por js/app.js -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Ventana Modal de Datasheet Resumido -->
+  <div id="datasheet-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="ds-title">
+    <div class="modal-sheet datasheet-modal-sheet">
+      <header class="ds-header">
+        <div class="ds-header-main">
+          <div class="ds-meta-badges">
+            <span id="ds-category-badge" class="badge-paper">Categoría</span>
+            <span id="ds-programmable-badge" class="badge-accent hidden">Programable</span>
+            <span id="ds-package-badge" class="badge-mono">DIP-28</span>
+          </div>
+          <h2 id="ds-title" class="ds-title">Hoja de Datos Técnica</h2>
+          <p id="ds-subtitle" class="ds-subtitle">Modelo · Fabricante</p>
+        </div>
+        <div class="ds-header-actions">
+          <button id="ds-open-ide-btn" class="btn btn-primary btn-sm hidden" type="button">
+            <span aria-hidden="true">💻</span>
+            <span>Abrir IDE</span>
+          </button>
+          <button id="btn-close-datasheet" class="btn-icon" type="button" aria-label="Cerrar datasheet" title="Cerrar (Esc)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <nav class="ds-tabs" role="tablist" aria-label="Secciones del datasheet">
+        <button class="ds-tab is-active" type="button" data-tab="all" role="tab" aria-selected="true">Ficha Completa</button>
+        <button class="ds-tab" type="button" data-tab="summary" role="tab" aria-selected="false">Resumen</button>
+        <button class="ds-tab" type="button" data-tab="electrical" role="tab" aria-selected="false">Eléctricas</button>
+        <button class="ds-tab" type="button" data-tab="limits" role="tab" aria-selected="false">Límites Máx.</button>
+        <button class="ds-tab" type="button" data-tab="pinout" role="tab" aria-selected="false">Pinout</button>
+        <button class="ds-tab" type="button" data-tab="notes" role="tab" aria-selected="false">Fórmulas y Notas</button>
+      </nav>
+
+      <div id="ds-body" class="ds-body"></div>
+    </div>
+  </div>
+
+  <!-- Drawer / Modal IDE Arduino y Monitor Serie -->
+  <div id="ide-drawer" class="drawer-backdrop hidden" role="dialog" aria-modal="false" aria-labelledby="ide-title">
+    <aside class="ide-panel">
+      <header class="ide-header">
+        <div class="ide-title-wrap">
+          <div class="ide-title-top">
+            <span class="ide-chip-badge">Arduino Uno R3 · ATmega328P</span>
+            <span id="ide-sketch-badge" class="ide-sketch-name">sketch_actual.ino</span>
+          </div>
+          <h2 id="ide-title" class="ide-title">IDE Arduino &amp; Monitor Serie</h2>
+        </div>
+        <div class="ide-header-actions">
+          <button id="btn-toggle-sound" class="btn btn-secondary btn-sm" type="button" title="Activar o silenciar el sonido del buzzer piezoeléctrico">
+            <span id="sound-icon" aria-hidden="true">🔊</span>
+            <span id="sound-label">Sonido: ON</span>
+          </button>
+          <button id="btn-close-ide" class="btn-icon" type="button" aria-label="Cerrar IDE Arduino" title="Cerrar (Esc)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Barra de Presets -->
+      <div class="ide-toolbar">
+        <div class="ide-preset-group">
+          <label class="ide-field-label" for="ide-preset-select">Ejemplo:</label>
+          <select id="ide-preset-select" class="ide-select"></select>
+          <button id="btn-load-preset" class="btn btn-secondary btn-sm" type="button">Cargar ejemplo</button>
+        </div>
+        <button id="btn-compile-upload" class="btn btn-primary" type="button">
+          <span aria-hidden="true">⚡</span>
+          <span>Compilar e Inyectar Código</span>
+        </button>
+      </div>
+
+      <!-- Editor con numeración de líneas sincronizada -->
+      <div class="ide-editor-wrap">
+        <div id="ide-line-numbers" class="ide-gutter" aria-hidden="true">1</div>
+        <textarea id="ide-editor" class="ide-textarea" spellcheck="false" wrap="off" aria-label="Editor de código Arduino C++"></textarea>
+      </div>
+
+      <!-- Barra de estado de compilación -->
+      <div id="ide-status-bar" class="ide-status-bar is-ok" role="status">
+        <span id="ide-status-icon" class="ide-status-dot" aria-hidden="true"></span>
+        <span id="ide-status-message" class="ide-status-msg">Listo para compilar.</span>
+        <span id="ide-memory-stats" class="ide-memory-stats">Flash: -- · SRAM: --</span>
+      </div>
+
+      <!-- Monitor Serie en vivo -->
+      <section class="serial-section" aria-label="Monitor Serie">
+        <div class="serial-header">
+          <div class="serial-title-group">
+            <span class="serial-title">Monitor Serie</span>
+            <span class="serial-baud">9600 baud</span>
+            <span id="serial-count" class="serial-count">0 líneas</span>
+          </div>
+          <div class="serial-actions">
+            <label class="serial-autoscroll">
+              <input id="chk-serial-autoscroll" type="checkbox" checked>
+              <span>Auto-scroll</span>
+            </label>
+            <button id="btn-clear-serial" class="btn btn-secondary btn-xs" type="button">Limpiar</button>
+          </div>
+        </div>
+        <div id="serial-output" class="serial-output" role="log" aria-live="polite"></div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- Carga clásica en orden estricto -->
+  <script src="js/datasheets.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/scene3d.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
